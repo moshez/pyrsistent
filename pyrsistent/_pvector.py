@@ -29,7 +29,7 @@ class PythonPVector(object):
     """
     Support structure for PVector that implements structural sharing for vectors using a trie.
     """
-    __slots__ = ('_count', '_shift', '_root', '_tail', '_tail_offset', '__weakref__')
+    __slots__ = ('_count', '_shift', '_root', '_tail', '_tail_offset', '__weakref__', '_cached_hash')
 
     def __new__(cls, count, shift, root, tail):
         self = super(PythonPVector, cls).__new__(cls)
@@ -128,8 +128,10 @@ class PythonPVector(object):
         return tuple(self.tolist())
 
     def __hash__(self):
-        # Taking the easy way out again...
-        return hash(self._totuple())
+        if not hasattr(self, '_cached_hash'):
+            # Taking the easy way out again...
+            self._cached_hash = hash(self._totuple())
+        return self._cached_hash
 
     def transform(self, *transformations):
         return transform(self, transformations)
